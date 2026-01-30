@@ -1,20 +1,19 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import AuthScreen from "@/components/auth/auth-screen";
-import LandlordDashboard from "@/components/dashboard/landlord-view";
-import TenantDashboard from "@/components/dashboard/tenant-view";
+import Dashboard from "@/components/dashboard/dashboard";
+import ProjectView from "@/components/calculator/project-view";
 import { Toaster } from "@/components/ui/toaster";
 
-export type UserRole = "landlord" | "tenant" | null;
-
-export default function RentEaseApp() {
-  const [user, setUser] = useState<{ phone: string; name?: string; role: UserRole } | null>(null);
+export default function BuildEstimateApp() {
+  const [user, setUser] = useState<{ phone: string; name?: string } | null>(null);
+  const [activeProject, setActiveProject] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Simulate loading local session
-    const savedUser = localStorage.getItem("rentease_user");
+    const savedUser = localStorage.getItem("buildestimate_user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -23,35 +22,32 @@ export default function RentEaseApp() {
 
   if (!isLoaded) return null;
 
-  const handleLogin = (phone: string) => {
-    setUser({ phone, role: null });
-  };
-
-  const handleRoleSelect = (role: UserRole, name: string) => {
-    if (user) {
-      const updatedUser = { ...user, role, name };
-      setUser(updatedUser);
-      localStorage.setItem("rentease_user", JSON.stringify(updatedUser));
-    }
+  const handleLogin = (phone: string, name: string) => {
+    const newUser = { phone, name };
+    setUser(newUser);
+    localStorage.setItem("buildestimate_user", JSON.stringify(newUser));
   };
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.removeItem("rentease_user");
+    localStorage.removeItem("buildestimate_user");
   };
 
   return (
-    <div className="max-w-md mx-auto min-h-screen bg-background shadow-xl overflow-hidden relative">
-      {!user || !user.role ? (
-        <AuthScreen 
-          onLogin={handleLogin} 
-          onRoleSelect={handleRoleSelect} 
-          currentUser={user}
+    <div className="max-w-md mx-auto min-h-screen bg-background shadow-xl overflow-hidden relative border-x">
+      {!user ? (
+        <AuthScreen onLogin={handleLogin} />
+      ) : activeProject ? (
+        <ProjectView 
+          projectId={activeProject} 
+          onBack={() => setActiveProject(null)} 
         />
-      ) : user.role === "landlord" ? (
-        <LandlordDashboard user={user} onLogout={handleLogout} />
       ) : (
-        <TenantDashboard user={user} onLogout={handleLogout} />
+        <Dashboard 
+          user={user} 
+          onLogout={handleLogout} 
+          onSelectProject={setActiveProject} 
+        />
       )}
       <Toaster />
     </div>

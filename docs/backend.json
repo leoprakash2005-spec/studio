@@ -1,0 +1,47 @@
+
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A construction project estimation",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the construction project" },
+        "type": { "type": "string", "enum": ["Residential", "Commercial", "Renovation", "Industrial"], "description": "Type of construction" },
+        "totalArea": { "type": "number", "description": "Total area in square feet" },
+        "location": { "type": "string", "description": "Project location" },
+        "status": { "type": "string", "enum": ["Planning", "Estimation", "Approved"], "description": "Current phase" },
+        "userId": { "type": "string", "description": "Owner of the estimate" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "type", "totalArea", "userId"]
+    },
+    "CostItem": {
+      "title": "Cost Item",
+      "description": "An individual expense item in a project",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Item description" },
+        "category": { "type": "string", "enum": ["Materials", "Labor", "Permits", "Equipment", "Logistics", "Other"], "description": "Expense category" },
+        "quantity": { "type": "number" },
+        "unit": { "type": "string", "description": "e.g., Sqft, Hours, Units, Tons" },
+        "unitPrice": { "type": "number" },
+        "total": { "type": "number" }
+      },
+      "required": ["name", "category", "quantity", "unitPrice", "total"]
+    }
+  },
+  "auth": {
+    "providers": ["phone"]
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Main project documents"
+    },
+    "/projects/{projectId}/items/{itemId}": {
+      "schema": "CostItem",
+      "description": "Individual cost items for a specific project"
+    }
+  }
+}
